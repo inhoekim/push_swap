@@ -50,7 +50,7 @@ void sort_less_3(int from, int size, char type) {
             } else if (dqs[A][0] > dqs[A][1] && dqs[A][1] < dqs[A][2] && dqs[A][0] > dqs[A][2]) { // case 3 1 2
                 RO(A);PP(A, B);PP(A, B);RRO(A);PP(B, A);PP(B, A);
             } else if (dqs[A][0] > dqs[A][1] && dqs[A][1] < dqs[A][2] && dqs[A][0] < dqs[A][2]) { // case 2 1 3
-                PP(A, B);RO(B);PP(A, B);RRO(B);PP(B, A);PP(B, A);
+				RO(A);PP(A,B),RRO(A),PP(B,A);
             } else if (dqs[A][0] < dqs[A][1] && dqs[A][0] > dqs[A][2]) { // case 2 3 1
                 RO(A);RO(A);PP(A, B);RRO(A);RRO(A);PP(B, A);
             } else if (dqs[A][0] < dqs[A][1] && dqs[A][0] < dqs[A][2] && dqs[A][1] > dqs[A][2]) { // case 1 3 2
@@ -160,7 +160,7 @@ void order(int from, int size, char type) {
 
 int main(void) {
 
-    ifstream in("a.txt");
+	ifstream in("a.txt");
     n = 100000;
     for (int i = 0; i < n; i++) {
         int temp;
