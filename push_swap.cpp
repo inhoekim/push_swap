@@ -38,6 +38,20 @@ void RRO(int stack_idx) {
 	cnt++;
 }
 
+bool sorted_check(int size, bool is_reverse) {
+    if (!is_reverse) {
+        for (int i = 0; i < size; i++)
+            if (dqs[A][i] != arr[i])
+                return false;
+    }
+    else {
+        for (int i = 0; i < size; i++)
+            if (dqs[B][i] != arr[size - 1 - i])
+                return false;
+    }
+    return true;
+}
+
 void sort_less_3(int from, int size, char type) {
 	if (from == A) {
 		if (size == 2)
@@ -85,9 +99,6 @@ void sort_less_3(int from, int size, char type) {
 }
 
 void partition(int from, int size, int *ps, char type) {
-	for (int i = 0; i < size; i++)
-		arr[i] = dqs[from][i];
-	sort(&arr[0], arr + size);
 	int pivot = arr[size / 3];
 	int pivot2 = arr[(size / 3) * 2];
 	ps[0] = size / 3; ps[1] = size / 3; ps[2] = size / 3 + size % 3;
@@ -108,7 +119,7 @@ void partition(int from, int size, int *ps, char type) {
 				PP(A, B);
 				remain_m--;
 				//큰영역(L)
-			} else if (dqs[A].front() >= pivot2 && remain_s != 0 && remain_m != 0) {
+			} else if (dqs[A].front() >= pivot2 && !(remain_s == 0 && remain_m == 0)) {
 				RO(A);
 				remain_b--;
 			}
@@ -124,7 +135,7 @@ void partition(int from, int size, int *ps, char type) {
 		//B에서 파티션이 일어난 경우
 	else {
 		for (int i = 0; i < size; i++) {
-			if (dqs[B].front() < pivot && remain_m != 0 && remain_b != 0) {
+			if (dqs[B].front() < pivot && !(remain_m == 0 && remain_b == 0)) {
 				RO(B);
 				remain_s--;
 			} else if (pivot <= dqs[B].front() && dqs[B].front() < pivot2) {
@@ -140,15 +151,20 @@ void partition(int from, int size, int *ps, char type) {
 			for (int j = 0; j < ps[0] - remain_s; j++)
 				RRO(B);
 		else
-			for (int j = 0; j < dqs[B].size() - ps[2] + remain_s; j++)
+			for (int j = 0; j < dqs[B].size() - ps[0] + remain_s; j++)
 				RO(B);
 	}
 }
 
 //주어진 영역을 3등분하면서 정렬을 진행하는 함수
 void order(int from, int size, char type) {
-	if (size == 1) {
-		if (from == B)
+    for (int i = 0; i < size; i++)
+        arr[i] = dqs[from][i];
+    sort(&arr[0], arr + size);
+    if (from == A && sorted_check(size, false))
+        return ;
+	if (from == B && sorted_check(size, true)) {
+		for (int i = 0; i < size; i++)
 			PP(B, A);
 		return ;
 	}
@@ -162,14 +178,25 @@ void order(int from, int size, char type) {
 	if (from == A) {
 		order(A, partition_size[2], 'L'); //L영역 정렬
 		order(B, partition_size[1], 'M'); //M영역 정렬
-		for (int i = 0; i < partition_size[0]; i++)
-			RRO(B);
+		//고정영역이 S영역보다 더 클때
+		if (2 * partition_size[0] < dqs[B].size())
+		    for (int i = 0; i < partition_size[0]; i++)
+			    RRO(B);
+		else //고정영역이 S영역보다 더 작을때
+		    for (int i = 0; i < dqs[B].size() - partition_size[0]; i++)
+		        RO(B);
 		order(B, partition_size[0], 'S'); //S영역 정렬
 	}
 	if (from == B) {
 		order(A, partition_size[2], 'L');
-		for (int i = 0; i < partition_size[1]; i++)
-			RRO(A);
+		//고정영역이 M영역보다 더 클때
+		if (2 * partition_size[1] < dqs[A].size())
+		    for (int i = 0; i < partition_size[1]; i++)
+		        RRO(A);
+        //고정영역이 M영역보다 더 작을때
+        else
+		    for (int i = 0; i < dqs[A].size() - partition_size[1]; i++)
+		        RO(A);
 		order(A, partition_size[1], 'M');
 		order(B, partition_size[0], 'S');
 	}
@@ -177,8 +204,6 @@ void order(int from, int size, char type) {
 }
 
 int main(void) {
-
-	/*
 	ifstream in("a.txt");
 	n = 100000;
 	for (int i = 0; i < n; i++) {
@@ -186,13 +211,14 @@ int main(void) {
 		in >> temp;
 		dqs[A].push_back(temp);
 	}
-	*/
+    /*
 	cin >> n;
 	for (int i = 0; i < n; i++) {
 		int temp;
 		cin >> temp;
 		dqs[A].push_back(temp);
 	}
+     */
 	order(A, n, 'L');
 	cout << cnt << "\n" << ss.str();
 	deque<int>::iterator iter;
@@ -205,5 +231,6 @@ int main(void) {
 		}
 		n++;
 	}
+	cout << endl;
 	cout << cnt << endl;
 }
